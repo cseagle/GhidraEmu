@@ -25,23 +25,23 @@ import ghidra.framework.plugintool.PluginTool;
 import resources.ResourceManager;
 
 class OptionsAction extends DockingAction {
-	public static final ImageIcon OPTIONS_ICON = ResourceManager.loadImage("images/wrench.png");
+    public static final ImageIcon OPTIONS_ICON = ResourceManager.loadImage("images/wrench.png");
 
-	private final ByteViewerComponentProviderEmu provider;
+    private final ByteViewerComponentProviderEmu provider;
 
-	private final PluginTool tool;
+    private final PluginTool tool;
 
-	public OptionsAction(ByteViewerComponentProviderEmu provider, Plugin plugin) {
-		super("Byte Viewer Options", plugin.getName());
-		this.provider = provider;
-		this.tool = plugin.getTool();
-		setEnabled(false);
-		setDescription("Set Byte Viewer Options");
-		setToolBarData(new ToolBarData(OPTIONS_ICON, "ZSettings"));
-	}
+    public OptionsAction(ByteViewerComponentProviderEmu provider, Plugin plugin) {
+        super("Byte Viewer Options", plugin.getName());
+        this.provider = provider;
+        this.tool = plugin.getTool();
+        setEnabled(false);
+        setDescription("Set Byte Viewer Options");
+        setToolBarData(new ToolBarData(OPTIONS_ICON, "ZSettings"));
+    }
 
-	@Override
-	public void actionPerformed(ActionContext context) {
-		tool.showDialog(new ByteViewerOptionsDialog(provider), provider);
-	}
+    @Override
+    public void actionPerformed(ActionContext context) {
+        tool.showDialog(new ByteViewerOptionsDialog(provider), provider);
+    }
 }

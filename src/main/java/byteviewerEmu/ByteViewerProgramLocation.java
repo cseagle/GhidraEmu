@@ -25,11 +25,11 @@ import ghidra.program.util.ProgramLocation;
  */
 public class ByteViewerProgramLocation extends ProgramLocation {
 
-	public ByteViewerProgramLocation() {
-		// for xml restoring
-	}
+    public ByteViewerProgramLocation() {
+        // for xml restoring
+    }
 
-	ByteViewerProgramLocation(Program program, Address address, int characterOffset) {
-		super(program, address, 0, 0, characterOffset);
-	}
+    ByteViewerProgramLocation(Program program, Address address, int characterOffset) {
+        super(program, address, 0, 0, characterOffset);
+    }
 }

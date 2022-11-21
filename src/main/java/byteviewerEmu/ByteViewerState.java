@@ -29,64 +29,64 @@ import ghidra.program.util.ProgramLocation;
  */
 class ByteViewerState {
 
-	private ViewerPosition vp;
-	private ByteBlock block;
-	private BigInteger offset;
-	private Address addr; // null if a program is not in view
+    private ViewerPosition vp;
+    private ByteBlock block;
+    private BigInteger offset;
+    private Address addr; // null if a program is not in view
 
-	ByteViewerState(ByteBlockSet blockSet, ByteBlockInfo info, ViewerPosition vp) {
-		block = info.getBlock();
-		offset = info.getOffset();
-		this.vp = vp;
-		PluginEvent event = blockSet.getPluginEvent("", block, offset, info.getColumn());
-		if (event != null) {
-			if (event instanceof ProgramLocationPluginEvent) {
-				ProgramLocation loc = ((ProgramLocationPluginEvent) event).getLocation();
-				addr = loc.getAddress();
-			}
-		}
-	}
+    ByteViewerState(ByteBlockSet blockSet, ByteBlockInfo info, ViewerPosition vp) {
+        block = info.getBlock();
+        offset = info.getOffset();
+        this.vp = vp;
+        PluginEvent event = blockSet.getPluginEvent("", block, offset, info.getColumn());
+        if (event != null) {
+            if (event instanceof ProgramLocationPluginEvent) {
+                ProgramLocation loc = ((ProgramLocationPluginEvent) event).getLocation();
+                addr = loc.getAddress();
+            }
+        }
+    }
 
-	/**
-	 * Returns the address that the current view is focused on.
-	 *
-	 * @return will return null if and only if the viewer does not currently
-	 * have a program. In other words, if a viewer has a program then it must
-	 * be able to associate a single "focus" address to any possible view it
-	 * can be in. The choice of address to use is, of course, up to each
-	 * implementing object.
-	 */
-	public Address getAddress() {
-		return addr;
-	}
+    /**
+     * Returns the address that the current view is focused on.
+     *
+     * @return will return null if and only if the viewer does not currently
+     * have a program. In other words, if a viewer has a program then it must
+     * be able to associate a single "focus" address to any possible view it
+     * can be in. The choice of address to use is, of course, up to each
+     * implementing object.
+     */
+    public Address getAddress() {
+        return addr;
+    }
 
-	/**
-	 * String representation for this object, used for debugging.
-	 */
-	@Override
-	public String toString() {
-		return "ByteViewerState: address=" + addr + ", view position index==> " +
-			vp.getIndexAsInt() + ", view y offset==> " + vp.getYOffset();
-	}
+    /**
+     * String representation for this object, used for debugging.
+     */
+    @Override
+    public String toString() {
+        return "ByteViewerState: address=" + addr + ", view position index==> " +
+            vp.getIndexAsInt() + ", view y offset==> " + vp.getYOffset();
+    }
 
-	/**
-	 * Get the view position for the current component.
-	 */
-	ViewerPosition getViewerPosition() {
-		return vp;
-	}
+    /**
+     * Get the view position for the current component.
+     */
+    ViewerPosition getViewerPosition() {
+        return vp;
+    }
 
-	/**
-	 * Get the block.
-	 */
-	ByteBlock getBlock() {
-		return block;
-	}
+    /**
+     * Get the block.
+     */
+    ByteBlock getBlock() {
+        return block;
+    }
 
-	/**
-	 * Get the offset into the block.
-	 */
-	BigInteger getOffset() {
-		return offset;
-	}
+    /**
+     * Get the offset into the block.
+     */
+    BigInteger getOffset() {
+        return offset;
+    }
 }

@@ -26,22 +26,22 @@ import docking.ActionContext;
 import docking.action.*;
 
     class ToggleEditAction extends ToggleDockingAction {
-    	private final ByteViewerComponentProviderEmu provider;
-    	public ToggleEditAction(ByteViewerComponentProviderEmu provider, Plugin plugin) {
-    		super("Enable/Disable Byteviewer Editing", plugin.getName());
-			this.provider = provider;
-    		setToolBarData( new ToolBarData( 
-    			ResourceManager.loadImage( "images/editbytes.gif" ), "Byteviewer" ) );
-    		setKeyBindingData( new KeyBindingData( 
-    			KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK ) );
+        private final ByteViewerComponentProviderEmu provider;
+        public ToggleEditAction(ByteViewerComponentProviderEmu provider, Plugin plugin) {
+            super("Enable/Disable Byteviewer Editing", plugin.getName());
+            this.provider = provider;
+            setToolBarData( new ToolBarData( 
+                ResourceManager.loadImage( "images/editbytes.gif" ), "Byteviewer" ) );
+            setKeyBindingData( new KeyBindingData( 
+                KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK ) );
 
-    		setDescription("Enable/Disable editing of bytes in Byte Viewer panels.");
-    		setSelected(false);
-    		setEnabled(true);
-		}
+            setDescription("Enable/Disable editing of bytes in Byte Viewer panels.");
+            setSelected(false);
+            setEnabled(true);
+        }
         @Override
         public void actionPerformed(ActionContext context) {
-			boolean isSelected = isSelected(); 
+            boolean isSelected = isSelected(); 
             provider.setEditMode(isSelected);
         }
     }

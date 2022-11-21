@@ -28,44 +28,44 @@ import ghidra.program.model.listing.Program;
  */
 @ToolEventName(ByteBlockChangePluginEvent.NAME) // this allows the event to be considered for tool connection
 public final class ByteBlockChangePluginEvent extends PluginEvent {
-	/**
-	 * Name of this event.
-	 */
-	static final String NAME = "ByteBlockChange";
+    /**
+     * Name of this event.
+     */
+    static final String NAME = "ByteBlockChange";
 
-	private WeakReference<Program> programRef;
-	private ByteEditInfo edit;
+    private WeakReference<Program> programRef;
+    private ByteEditInfo edit;
 
-	/**
-	 * Construct a new plugin event.
-	 * @param src the name of the plugin that generated this event.
-	 * @param edit byte block edit
-	 * @param program the domain object for which the change affects
-	 */
-	public ByteBlockChangePluginEvent(String src, ByteEditInfo edit, Program program) {
-		super(src, NAME);
-		this.edit = edit;
-		this.programRef = new WeakReference<>(program);
-	}
+    /**
+     * Construct a new plugin event.
+     * @param src the name of the plugin that generated this event.
+     * @param edit byte block edit
+     * @param program the domain object for which the change affects
+     */
+    public ByteBlockChangePluginEvent(String src, ByteEditInfo edit, Program program) {
+        super(src, NAME);
+        this.edit = edit;
+        this.programRef = new WeakReference<>(program);
+    }
 
-	/**
-	 * Returns the domain object that the change refers to.
-	 */
-	public Program getProgram() {
-		return programRef.get();
-	}
+    /**
+     * Returns the domain object that the change refers to.
+     */
+    public Program getProgram() {
+        return programRef.get();
+    }
 
-	/**
-	 * Get the block for the change.
-	 */
-	public ByteEditInfo getByteEditInfo() {
-		return edit;
-	}
+    /**
+     * Get the block for the change.
+     */
+    public ByteEditInfo getByteEditInfo() {
+        return edit;
+    }
 
-	@Override
-	protected String getDetails() {
-		return ("Address of Block Change==> " + edit.getBlockAddress() + ", offset ==> " +
-			edit.getOffset());
-	}
+    @Override
+    protected String getDetails() {
+        return ("Address of Block Change==> " + edit.getBlockAddress() + ", offset ==> " +
+            edit.getOffset());
+    }
 
 }

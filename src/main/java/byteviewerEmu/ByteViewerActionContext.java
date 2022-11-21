@@ -19,9 +19,9 @@ package byteviewerEmu;
 import ghidra.app.context.NavigatableActionContext;
 
 public class ByteViewerActionContext extends NavigatableActionContext {
-	
-	public ByteViewerActionContext(ProgramByteViewerComponentProviderEmu provider) {
-		super(provider, provider);
-	}
+    
+    public ByteViewerActionContext(ProgramByteViewerComponentProviderEmu provider) {
+        super(provider, provider);
+    }
 
 }

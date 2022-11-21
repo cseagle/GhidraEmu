@@ -24,30 +24,30 @@ import java.io.Serializable;
  */
 class DataModelInfo implements Serializable {
 
-	private String[] names;
-	private int[] groupSizes;
+    private String[] names;
+    private int[] groupSizes;
 
-	/**
-	 * Constructor
-	 * @param id name of the model
-	 * @param groupSize group size for the model
-	 */
-	DataModelInfo(int size) {
-		names = new String[size];
-		groupSizes = new int[size];
-	}
+    /**
+     * Constructor
+     * @param id name of the model
+     * @param groupSize group size for the model
+     */
+    DataModelInfo(int size) {
+        names = new String[size];
+        groupSizes = new int[size];
+    }
 
-	void set(int index, String name, int groupSize) {
-		names[index] = name;
-		groupSizes[index] = groupSize;
-	}
+    void set(int index, String name, int groupSize) {
+        names[index] = name;
+        groupSizes[index] = groupSize;
+    }
 
-	/**
-	 * Get the name of the model.
-	 *
-	 * @return String
-	 */
-	String[] getNames() {
-		return names;
-	}
+    /**
+     * Get the name of the model.
+     *
+     * @return String
+     */
+    String[] getNames() {
+        return names;
+    }
 }

@@ -24,29 +24,29 @@ import java.awt.Color;
 import docking.widgets.fieldpanel.support.Highlight;
 
 public class ByteViewerHighlightProvider implements HighlightProvider {
-	private static Highlight[] NO_HIGHLIGHTS = new Highlight[0];
-	private String highlightText;
-	private Color highlightColor = Color.YELLOW;
+    private static Highlight[] NO_HIGHLIGHTS = new Highlight[0];
+    private String highlightText;
+    private Color highlightColor = Color.YELLOW;
 
-	public Highlight[] getHighlights(String text, Object obj,
-			Class<? extends FieldFactory> fieldFactoryClass, int cursorTextOffset) {
+    public Highlight[] getHighlights(String text, Object obj,
+            Class<? extends FieldFactory> fieldFactoryClass, int cursorTextOffset) {
 
-		if (text.equals(highlightText)) {
-			return new Highlight[] { new Highlight(0, text.length() - 1, highlightColor) };
-		}
-		return NO_HIGHLIGHTS;
-	}
+        if (text.equals(highlightText)) {
+            return new Highlight[] { new Highlight(0, text.length() - 1, highlightColor) };
+        }
+        return NO_HIGHLIGHTS;
+    }
 
-	void setText(String text) {
-		highlightText = text;
-	}
+    void setText(String text) {
+        highlightText = text;
+    }
 
-	String getText() {
-		return highlightText;
-	}
+    String getText() {
+        return highlightText;
+    }
 
-	void setHighlightColor(Color color) {
-		this.highlightColor = color;
-	}
+    void setHighlightColor(Color color) {
+        this.highlightColor = color;
+    }
 
 }

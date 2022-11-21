@@ -24,38 +24,38 @@ import ghidra.program.model.address.AddressSet;
 
 public class EmptyByteBlockSet implements ByteBlockSet {
 
-	@Override
-	public void dispose() {
-	}
+    @Override
+    public void dispose() {
+    }
 
-	@Override
-	public ByteBlock[] getBlocks() {
-		return new ByteBlock[0];
-	}
+    @Override
+    public ByteBlock[] getBlocks() {
+        return new ByteBlock[0];
+    }
 
-	@Override
-	public ProgramLocationPluginEvent getPluginEvent(String source, ByteBlock block,
-			BigInteger offset, int column) {
-		return null;
-	}
+    @Override
+    public ProgramLocationPluginEvent getPluginEvent(String source, ByteBlock block,
+            BigInteger offset, int column) {
+        return null;
+    }
 
-	@Override
-	public ProgramSelectionPluginEvent getPluginEvent(String source, ByteBlockSelection selection) {
-		return null;
-	}
+    @Override
+    public ProgramSelectionPluginEvent getPluginEvent(String source, ByteBlockSelection selection) {
+        return null;
+    }
 
-	@Override
-	public boolean isChanged(ByteBlock block, BigInteger index, int length) {
-		return false;
-	}
+    @Override
+    public boolean isChanged(ByteBlock block, BigInteger index, int length) {
+        return false;
+    }
 
-	@Override
-	public void notifyByteEditing(ByteBlock block, BigInteger index, byte[] oldValue,
-			byte[] newValue) {
-	}
+    @Override
+    public void notifyByteEditing(ByteBlock block, BigInteger index, byte[] oldValue,
+            byte[] newValue) {
+    }
 
-	@Override
-	public AddressSet getAddressSet(ByteBlockSelection selection) {
-		return null;
-	}
+    @Override
+    public AddressSet getAddressSet(ByteBlockSelection selection) {
+        return null;
+    }
 }

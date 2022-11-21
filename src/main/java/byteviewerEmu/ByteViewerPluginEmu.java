@@ -39,347 +39,347 @@ import utility.function.Callback;
  */
 //@formatter:off
 @PluginInfo(
-	status = PluginStatus.RELEASED,
-	packageName = CorePluginPackage.NAME,
-	category = PluginCategoryNames.BYTE_VIEWER,
-	shortDescription = "Displays bytes in memory",
-	description = "Provides a component for showing the bytes in memory.  " +
-			"Additional plugins provide capabilites for this plugin" +
-			" to show the bytes in various formats (e.g., hex, octal, decimal)." +
-			"  The hex format plugin is loaded by default when this " + "plugin is loaded.",
-	servicesRequired = { ProgramManager.class, GoToService.class, NavigationHistoryService.class, ClipboardService.class },
-	eventsConsumed = {
-		ProgramLocationPluginEvent.class, ProgramActivatedPluginEvent.class,
-		ProgramSelectionPluginEvent.class, ProgramHighlightPluginEvent.class, ProgramClosedPluginEvent.class,
-		ByteBlockChangePluginEvent.class },
-	eventsProduced = { ProgramLocationPluginEvent.class, ProgramSelectionPluginEvent.class, ByteBlockChangePluginEvent.class }
+    status = PluginStatus.RELEASED,
+    packageName = CorePluginPackage.NAME,
+    category = PluginCategoryNames.BYTE_VIEWER,
+    shortDescription = "Displays bytes in memory",
+    description = "Provides a component for showing the bytes in memory.  " +
+            "Additional plugins provide capabilites for this plugin" +
+            " to show the bytes in various formats (e.g., hex, octal, decimal)." +
+            "  The hex format plugin is loaded by default when this " + "plugin is loaded.",
+    servicesRequired = { ProgramManager.class, GoToService.class, NavigationHistoryService.class, ClipboardService.class },
+    eventsConsumed = {
+        ProgramLocationPluginEvent.class, ProgramActivatedPluginEvent.class,
+        ProgramSelectionPluginEvent.class, ProgramHighlightPluginEvent.class, ProgramClosedPluginEvent.class,
+        ByteBlockChangePluginEvent.class },
+    eventsProduced = { ProgramLocationPluginEvent.class, ProgramSelectionPluginEvent.class, ByteBlockChangePluginEvent.class }
 )
 //@formatter:on
 public class ByteViewerPluginEmu extends Plugin {
 
-	private Program currentProgram;
-	private boolean areEventsDisabled;
-	private ProgramLocation currentLocation;
+    private Program currentProgram;
+    private boolean areEventsDisabled;
+    private ProgramLocation currentLocation;
 
-	private ProgramByteViewerComponentProviderEmu connectedProvider;
+    private ProgramByteViewerComponentProviderEmu connectedProvider;
 
-	private List<ProgramByteViewerComponentProviderEmu> disconnectedProviders = new ArrayList<>();
+    private List<ProgramByteViewerComponentProviderEmu> disconnectedProviders = new ArrayList<>();
 
-	public ByteViewerPluginEmu(PluginTool tool) {
-		super(tool);
+    public ByteViewerPluginEmu(PluginTool tool) {
+        super(tool);
 
-		connectedProvider = new ProgramByteViewerComponentProviderEmu(tool, this,  true);
-	}
+        connectedProvider = new ProgramByteViewerComponentProviderEmu(tool, this,  true);
+    }
 
-	protected void showConnectedProvider() {
-		tool.showComponentProvider(connectedProvider, true);
-	}
+    protected void showConnectedProvider() {
+        tool.showComponentProvider(connectedProvider, true);
+    }
 
-	@Override
-	protected void init() {
-		ClipboardService clipboardService = tool.getService(ClipboardService.class);
-		if (clipboardService != null) {
-			connectedProvider.setClipboardService(clipboardService);
-			for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
-				provider.setClipboardService(clipboardService);
-			}
-		}
-	}
+    @Override
+    protected void init() {
+        ClipboardService clipboardService = tool.getService(ClipboardService.class);
+        if (clipboardService != null) {
+            connectedProvider.setClipboardService(clipboardService);
+            for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
+                provider.setClipboardService(clipboardService);
+            }
+        }
+    }
 
-	/**
-	 * Tells a plugin that it is no longer needed.  The plugin should remove
-	 * itself from anything that it is registered to and release any resources.
-	 */
-	@Override
-	public void dispose() {
-		removeProvider(connectedProvider);
-		for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
-			removeProvider(provider);
-		}
-		disconnectedProviders.clear();
-	}
+    /**
+     * Tells a plugin that it is no longer needed.  The plugin should remove
+     * itself from anything that it is registered to and release any resources.
+     */
+    @Override
+    public void dispose() {
+        removeProvider(connectedProvider);
+        for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
+            removeProvider(provider);
+        }
+        disconnectedProviders.clear();
+    }
 
-	/**
-	 * Process the plugin event; delegates the processing to the
-	 * byte block.
-	 */
-	@Override
-	public void processEvent(PluginEvent event) {
-		if (event instanceof ProgramClosedPluginEvent) {
-			Program program = ((ProgramClosedPluginEvent) event).getProgram();
-			programClosed(program);
-			return;
-		}
+    /**
+     * Process the plugin event; delegates the processing to the
+     * byte block.
+     */
+    @Override
+    public void processEvent(PluginEvent event) {
+        if (event instanceof ProgramClosedPluginEvent) {
+            Program program = ((ProgramClosedPluginEvent) event).getProgram();
+            programClosed(program);
+            return;
+        }
 
-		if (event instanceof ProgramActivatedPluginEvent) {
-			currentProgram = ((ProgramActivatedPluginEvent) event).getActiveProgram();
-		}
-		else if (event instanceof ProgramLocationPluginEvent) {
-			currentLocation = ((ProgramLocationPluginEvent) event).getLocation();
-		}
+        if (event instanceof ProgramActivatedPluginEvent) {
+            currentProgram = ((ProgramActivatedPluginEvent) event).getActiveProgram();
+        }
+        else if (event instanceof ProgramLocationPluginEvent) {
+            currentLocation = ((ProgramLocationPluginEvent) event).getLocation();
+        }
 
-		connectedProvider.doHandleEvent(event);
-	}
+        connectedProvider.doHandleEvent(event);
+    }
 
-	void programClosed(Program closedProgram) {
-		Iterator<ProgramByteViewerComponentProviderEmu> iterator = disconnectedProviders.iterator();
-		while (iterator.hasNext()) {
-			ProgramByteViewerComponentProviderEmu provider = iterator.next();
-			if (provider.getProgram() == closedProgram) {
-				iterator.remove();
-				removeProvider(provider);
-			}
-		}
-	}
+    void programClosed(Program closedProgram) {
+        Iterator<ProgramByteViewerComponentProviderEmu> iterator = disconnectedProviders.iterator();
+        while (iterator.hasNext()) {
+            ProgramByteViewerComponentProviderEmu provider = iterator.next();
+            if (provider.getProgram() == closedProgram) {
+                iterator.remove();
+                removeProvider(provider);
+            }
+        }
+    }
 
-	public void fireProgramLocationPluginEvent(ProgramByteViewerComponentProviderEmu provider,
-			ProgramLocationPluginEvent event) {
+    public void fireProgramLocationPluginEvent(ProgramByteViewerComponentProviderEmu provider,
+            ProgramLocationPluginEvent event) {
 
-		if (SystemUtilities.isEqual(event.getLocation(), currentLocation)) {
-			return;
-		}
+        if (SystemUtilities.isEqual(event.getLocation(), currentLocation)) {
+            return;
+        }
 
-		currentLocation = event.getLocation();
-		if (provider == connectedProvider) {
-			firePluginEvent(event);
-		}
-	}
+        currentLocation = event.getLocation();
+        if (provider == connectedProvider) {
+            firePluginEvent(event);
+        }
+    }
 
-	/**
-	 * Tells a Plugin to write any data-independent (preferences)
-	 * properties to the output stream.
-	 */
-	@Override
-	public void writeConfigState(SaveState saveState) {
-		connectedProvider.writeConfigState(saveState);
-	}
+    /**
+     * Tells a Plugin to write any data-independent (preferences)
+     * properties to the output stream.
+     */
+    @Override
+    public void writeConfigState(SaveState saveState) {
+        connectedProvider.writeConfigState(saveState);
+    }
 
-	/**
-	 * Tells the Plugin to read its data-independent (preferences)
-	 * properties from the input stream.
-	 */
-	@Override
-	public void readConfigState(SaveState saveState) {
-		connectedProvider.readConfigState(saveState);
-	}
+    /**
+     * Tells the Plugin to read its data-independent (preferences)
+     * properties from the input stream.
+     */
+    @Override
+    public void readConfigState(SaveState saveState) {
+        connectedProvider.readConfigState(saveState);
+    }
 
-	/**
-	 * Read data state; called after readConfigState(). Events generated
-	 * by plugins we depend on should have been already been thrown by the
-	 * time this method is called.
-	 */
-	@Override
-	public void readDataState(SaveState saveState) {
+    /**
+     * Read data state; called after readConfigState(). Events generated
+     * by plugins we depend on should have been already been thrown by the
+     * time this method is called.
+     */
+    @Override
+    public void readDataState(SaveState saveState) {
 
-		doWithEventsDisabled(() -> {
+        doWithEventsDisabled(() -> {
 
-			ProgramManager programManagerService = tool.getService(ProgramManager.class);
+            ProgramManager programManagerService = tool.getService(ProgramManager.class);
 
-			connectedProvider.readDataState(saveState);
+            connectedProvider.readDataState(saveState);
 
-			int numDisconnected = saveState.getInt("Num Disconnected", 0);
-			for (int i = 0; i < numDisconnected; i++) {
-				Element xmlElement = saveState.getXmlElement("Provider" + i);
-				SaveState providerSaveState = new SaveState(xmlElement);
-				String programPath = providerSaveState.getString("Program Path", "");
-				DomainFile file = tool.getProject().getProjectData().getFile(programPath);
-				if (file == null) {
-					continue;
-				}
-				Program program = programManagerService.openProgram(file);
-				if (program != null) {
-					ProgramByteViewerComponentProviderEmu provider =
-						new ProgramByteViewerComponentProviderEmu(tool, this, false);
-					provider.doSetProgram(program);
-					provider.readConfigState(providerSaveState);
-					provider.readDataState(providerSaveState);
-					tool.showComponentProvider(provider, true);
-					addProvider(provider);
-				}
-			}
+            int numDisconnected = saveState.getInt("Num Disconnected", 0);
+            for (int i = 0; i < numDisconnected; i++) {
+                Element xmlElement = saveState.getXmlElement("Provider" + i);
+                SaveState providerSaveState = new SaveState(xmlElement);
+                String programPath = providerSaveState.getString("Program Path", "");
+                DomainFile file = tool.getProject().getProjectData().getFile(programPath);
+                if (file == null) {
+                    continue;
+                }
+                Program program = programManagerService.openProgram(file);
+                if (program != null) {
+                    ProgramByteViewerComponentProviderEmu provider =
+                        new ProgramByteViewerComponentProviderEmu(tool, this, false);
+                    provider.doSetProgram(program);
+                    provider.readConfigState(providerSaveState);
+                    provider.readDataState(providerSaveState);
+                    tool.showComponentProvider(provider, true);
+                    addProvider(provider);
+                }
+            }
 
-		});
-	}
+        });
+    }
 
-	/**
-	 * Tells the Plugin to write any data-dependent state to the
-	 * output stream.
-	 */
-	@Override
-	public void writeDataState(SaveState saveState) {
-		connectedProvider.writeDataState(saveState);
-		saveState.putInt("Num Disconnected", disconnectedProviders.size());
-		int i = 0;
-		for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
-			SaveState providerSaveState = new SaveState();
-			DomainFile df = provider.getProgram().getDomainFile();
-			if (df.getParent() == null) {
-				continue; // not contained within project
-			}
-			String programPathname = df.getPathname();
-			providerSaveState.putString("Program Path", programPathname);
-			provider.writeConfigState(providerSaveState);
-			provider.writeDataState(providerSaveState);
-			String elementName = "Provider" + i;
-			saveState.putXmlElement(elementName, providerSaveState.saveToXml());
-			i++;
-		}
-	}
+    /**
+     * Tells the Plugin to write any data-dependent state to the
+     * output stream.
+     */
+    @Override
+    public void writeDataState(SaveState saveState) {
+        connectedProvider.writeDataState(saveState);
+        saveState.putInt("Num Disconnected", disconnectedProviders.size());
+        int i = 0;
+        for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
+            SaveState providerSaveState = new SaveState();
+            DomainFile df = provider.getProgram().getDomainFile();
+            if (df.getParent() == null) {
+                continue; // not contained within project
+            }
+            String programPathname = df.getPathname();
+            providerSaveState.putString("Program Path", programPathname);
+            provider.writeConfigState(providerSaveState);
+            provider.writeDataState(providerSaveState);
+            String elementName = "Provider" + i;
+            saveState.putXmlElement(elementName, providerSaveState.saveToXml());
+            i++;
+        }
+    }
 
-	@Override
-	public Object getUndoRedoState(DomainObject domainObject) {
-		Map<Long, Object> stateMap = new HashMap<>();
+    @Override
+    public Object getUndoRedoState(DomainObject domainObject) {
+        Map<Long, Object> stateMap = new HashMap<>();
 
-		addUndoRedoState(stateMap, domainObject, connectedProvider);
+        addUndoRedoState(stateMap, domainObject, connectedProvider);
 
-		for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
-			addUndoRedoState(stateMap, domainObject, provider);
-		}
+        for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
+            addUndoRedoState(stateMap, domainObject, provider);
+        }
 
-		if (stateMap.isEmpty()) {
-			return null;
-		}
-		return stateMap;
-	}
+        if (stateMap.isEmpty()) {
+            return null;
+        }
+        return stateMap;
+    }
 
-	private void addUndoRedoState(Map<Long, Object> stateMap, DomainObject domainObject,
-			ProgramByteViewerComponentProviderEmu provider) {
-		if (provider == null) {
-			return;
-		}
-		Object state = provider.getUndoRedoState(domainObject);
-		if (state != null) {
-			stateMap.put(provider.getInstanceID(), state);
-		}
-	}
+    private void addUndoRedoState(Map<Long, Object> stateMap, DomainObject domainObject,
+            ProgramByteViewerComponentProviderEmu provider) {
+        if (provider == null) {
+            return;
+        }
+        Object state = provider.getUndoRedoState(domainObject);
+        if (state != null) {
+            stateMap.put(provider.getInstanceID(), state);
+        }
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void restoreUndoRedoState(DomainObject domainObject, Object state) {
-		Map<Long, Object> stateMap = (Map<Long, Object>) state;
-		restoreUndoRedoState(stateMap, domainObject, connectedProvider);
-		for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
-			restoreUndoRedoState(stateMap, domainObject, provider);
-		}
+    @SuppressWarnings("unchecked")
+    @Override
+    public void restoreUndoRedoState(DomainObject domainObject, Object state) {
+        Map<Long, Object> stateMap = (Map<Long, Object>) state;
+        restoreUndoRedoState(stateMap, domainObject, connectedProvider);
+        for (ProgramByteViewerComponentProviderEmu provider : disconnectedProviders) {
+            restoreUndoRedoState(stateMap, domainObject, provider);
+        }
 
-	}
+    }
 
-	private void restoreUndoRedoState(Map<Long, Object> stateMap, DomainObject domainObject,
-			ProgramByteViewerComponentProviderEmu provider) {
-		if (provider == null) {
-			return;
-		}
-		Object state = stateMap.get(provider.getInstanceID());
-		if (state != null) {
-			provider.restoreUndoRedoState(domainObject, state);
-		}
-	}
+    private void restoreUndoRedoState(Map<Long, Object> stateMap, DomainObject domainObject,
+            ProgramByteViewerComponentProviderEmu provider) {
+        if (provider == null) {
+            return;
+        }
+        Object state = stateMap.get(provider.getInstanceID());
+        if (state != null) {
+            provider.restoreUndoRedoState(domainObject, state);
+        }
+    }
 
-	@Override
-	public Object getTransientState() {
-		Object[] state = new Object[2];
+    @Override
+    public Object getTransientState() {
+        Object[] state = new Object[2];
 
-		SaveState ss = new SaveState();
-		connectedProvider.writeDataState(ss);
+        SaveState ss = new SaveState();
+        connectedProvider.writeDataState(ss);
 
-		state[0] = ss;
-		state[1] = connectedProvider.getCurrentSelection();
+        state[0] = ss;
+        state[1] = connectedProvider.getCurrentSelection();
 
-		return state;
-	}
+        return state;
+    }
 
-	@Override
-	public void restoreTransientState(Object objectState) {
+    @Override
+    public void restoreTransientState(Object objectState) {
 
-		doWithEventsDisabled(() -> {
-			Object[] state = (Object[]) objectState;
-			connectedProvider.restoreLocation((SaveState) state[0]);
-			connectedProvider.setSelection((ProgramSelection) state[1]);
-		});
-	}
+        doWithEventsDisabled(() -> {
+            Object[] state = (Object[]) objectState;
+            connectedProvider.restoreLocation((SaveState) state[0]);
+            connectedProvider.setSelection((ProgramSelection) state[1]);
+        });
+    }
 
-	private void doWithEventsDisabled(Callback callback) {
-		areEventsDisabled = true;
-		try {
-			callback.call();
-		}
-		finally {
-			areEventsDisabled = false;
-		}
-	}
+    private void doWithEventsDisabled(Callback callback) {
+        areEventsDisabled = true;
+        try {
+            callback.call();
+        }
+        finally {
+            areEventsDisabled = false;
+        }
+    }
 
-	private boolean eventsDisabled() {
-		return areEventsDisabled;
-	}
+    private boolean eventsDisabled() {
+        return areEventsDisabled;
+    }
 
-	void setStatusMessage(String msg) {
-		tool.setStatusInfo(msg);
-	}
+    void setStatusMessage(String msg) {
+        tool.setStatusInfo(msg);
+    }
 
-	void addProvider(ProgramByteViewerComponentProviderEmu provider) {
-		disconnectedProviders.add(provider);
-		provider.setClipboardService(tool.getService(ClipboardService.class));
-	}
+    void addProvider(ProgramByteViewerComponentProviderEmu provider) {
+        disconnectedProviders.add(provider);
+        provider.setClipboardService(tool.getService(ClipboardService.class));
+    }
 
-	Program getProgram() {
-		return currentProgram;
-	}
+    Program getProgram() {
+        return currentProgram;
+    }
 
-	// Silly Junits - only public until we move to the new multi-view system
-	public ProgramByteViewerComponentProviderEmu getProvider() {
-		return connectedProvider;
-	}
+    // Silly Junits - only public until we move to the new multi-view system
+    public ProgramByteViewerComponentProviderEmu getProvider() {
+        return connectedProvider;
+    }
 
-	public void updateSelection(ProgramByteViewerComponentProviderEmu provider,
-			ProgramSelectionPluginEvent event, Program program) {
-		if (provider == connectedProvider) {
-			firePluginEvent(event);
-		}
-	}
+    public void updateSelection(ProgramByteViewerComponentProviderEmu provider,
+            ProgramSelectionPluginEvent event, Program program) {
+        if (provider == connectedProvider) {
+            firePluginEvent(event);
+        }
+    }
 
-	public void highlightChanged(ProgramByteViewerComponentProviderEmu provider,
-			ProgramSelection highlight) {
-		if (provider == connectedProvider) {
-			tool.firePluginEvent(new ProgramHighlightPluginEvent(getName(), highlight,
-				connectedProvider.getProgram()));
-		}
-	}
+    public void highlightChanged(ProgramByteViewerComponentProviderEmu provider,
+            ProgramSelection highlight) {
+        if (provider == connectedProvider) {
+            tool.firePluginEvent(new ProgramHighlightPluginEvent(getName(), highlight,
+                connectedProvider.getProgram()));
+        }
+    }
 
-	public void closeProvider(ProgramByteViewerComponentProviderEmu provider) {
-		if (provider == connectedProvider) {
-			tool.showComponentProvider(provider, false);
-		}
-		else {
-			disconnectedProviders.remove(provider);
-			removeProvider(provider);
-		}
-	}
+    public void closeProvider(ProgramByteViewerComponentProviderEmu provider) {
+        if (provider == connectedProvider) {
+            tool.showComponentProvider(provider, false);
+        }
+        else {
+            disconnectedProviders.remove(provider);
+            removeProvider(provider);
+        }
+    }
 
-	public void updateLocation(ProgramByteViewerComponentProviderEmu provider,
-			ProgramLocationPluginEvent event, boolean export) {
+    public void updateLocation(ProgramByteViewerComponentProviderEmu provider,
+            ProgramLocationPluginEvent event, boolean export) {
 
-		if (eventsDisabled()) {
-			return;
-		}
+        if (eventsDisabled()) {
+            return;
+        }
 
-		if (provider == connectedProvider) {
-			fireProgramLocationPluginEvent(provider, event);
-		}
-		else if (export) {
-			exportLocation(provider.getProgram(), event.getLocation());
-		}
-	}
+        if (provider == connectedProvider) {
+            fireProgramLocationPluginEvent(provider, event);
+        }
+        else if (export) {
+            exportLocation(provider.getProgram(), event.getLocation());
+        }
+    }
 
-	private void exportLocation(Program program, ProgramLocation location) {
-		GoToService service = tool.getService(GoToService.class);
-		if (service != null) {
-			service.goTo(location, program);
-		}
-	}
+    private void exportLocation(Program program, ProgramLocation location) {
+        GoToService service = tool.getService(GoToService.class);
+        if (service != null) {
+            service.goTo(location, program);
+        }
+    }
 
-	private void removeProvider(ProgramByteViewerComponentProviderEmu provider) {
-		tool.removeComponentProvider(provider);
-		provider.dispose();
-	}
+    private void removeProvider(ProgramByteViewerComponentProviderEmu provider) {
+        tool.removeComponentProvider(provider);
+        provider.dispose();
+    }
 
 }

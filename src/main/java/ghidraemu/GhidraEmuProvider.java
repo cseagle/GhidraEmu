@@ -54,6 +54,11 @@ import ghidra.util.task.ConsoleTaskMonitor;
 import ghidra.util.task.TaskMonitor;
 import resources.ResourceManager;
 
+import ghidra.program.database.util.ProgramTransaction;
+import ghidra.program.model.address.AddressSetView;
+import ghidra.program.model.address.AddressIterator;
+import ghidra.program.model.mem.Memory;
+import ghidra.program.model.mem.MemoryBlock;
 
 public class GhidraEmuProvider extends ComponentProvider {
 
@@ -91,7 +96,7 @@ public class GhidraEmuProvider extends ComponentProvider {
         traced = new ArrayList < Address > ();
         breaks = new ArrayList < Address > ();
         knownFuncs = new ArrayList < String > (Arrays.asList("malloc", "free", "puts", "strlen"));
-    	lpanel = plugin.codeViewer.getListingPanel();
+        lpanel = plugin.codeViewer.getListingPanel();
     }
 
     /**
@@ -136,35 +141,35 @@ public class GhidraEmuProvider extends ComponentProvider {
         });
         GroupLayout gl_panel = new GroupLayout(panel);
         gl_panel.setHorizontalGroup(
-        	gl_panel.createParallelGroup(Alignment.TRAILING)
-        		.addGroup(gl_panel.createSequentialGroup()
-        			.addGap(32)
-        			.addComponent(RunBtn, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
-        			.addGap(32)
-        			.addComponent(StepBtn, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
-        			.addGap(32)
-        			.addComponent(ResetBtn, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
-        			.addGap(66))
-        		.addGroup(gl_panel.createSequentialGroup()
-        			.addGap(58)
-        			.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
-        			.addGap(60)
-        			.addComponent(panel_4, GroupLayout.PREFERRED_SIZE, 129, Short.MAX_VALUE)
-        			.addGap(81))
+            gl_panel.createParallelGroup(Alignment.TRAILING)
+                .addGroup(gl_panel.createSequentialGroup()
+                    .addGap(32)
+                    .addComponent(RunBtn, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+                    .addGap(32)
+                    .addComponent(StepBtn, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+                    .addGap(32)
+                    .addComponent(ResetBtn, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+                    .addGap(66))
+                .addGroup(gl_panel.createSequentialGroup()
+                    .addGap(58)
+                    .addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
+                    .addGap(60)
+                    .addComponent(panel_4, GroupLayout.PREFERRED_SIZE, 129, Short.MAX_VALUE)
+                    .addGap(81))
         );
         gl_panel.setVerticalGroup(
-        	gl_panel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(gl_panel.createSequentialGroup()
-        			.addGap(22)
-        			.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-        				.addComponent(panel_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        				.addComponent(panel_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-        			.addGap(18)
-        			.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
-        				.addComponent(ResetBtn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        				.addComponent(StepBtn, 0, 0, Short.MAX_VALUE)
-        				.addComponent(RunBtn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        			.addContainerGap(19, Short.MAX_VALUE))
+            gl_panel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_panel.createSequentialGroup()
+                    .addGap(22)
+                    .addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+                        .addComponent(panel_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(panel_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                    .addGap(18)
+                    .addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
+                        .addComponent(ResetBtn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(StepBtn, 0, 0, Short.MAX_VALUE)
+                        .addComponent(RunBtn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addContainerGap(19, Short.MAX_VALUE))
         );
         GridBagLayout gbl_panel_4 = new GridBagLayout();
         gbl_panel_4.columnWidths = new int[] {
@@ -314,11 +319,11 @@ public class GhidraEmuProvider extends ComponentProvider {
 
     public boolean InitEmulation() {
 
-    	if (StartTF.getText().equals("")) {
-    		JOptionPane.showMessageDialog(null, "Set start address!");
+        if (StartTF.getText().equals("")) {
+            JOptionPane.showMessageDialog(null, "Set start address!");
             return false;
         }
-    	
+        
         if (StartTF.getText().matches("0x[0-9A-Fa-f]+") == false) {
             return false;
         }
@@ -348,16 +353,16 @@ public class GhidraEmuProvider extends ComponentProvider {
             //set SP register for emulator
             emuHelper.writeRegister(emuHelper.getStackPointerRegister(), stackOffset);
 
-            //update RegisterView with new SP value	
+            //update RegisterView with new SP value    
             RegisterProvider.setRegister(emuHelper.getStackPointerRegister().getName(), stackPointer);
 
-            //write stack bytes to emulator after user edititng	
+            //write stack bytes to emulator after user edititng    
             setEmuStackBytes();
 
             //Set registers
             setEmuRegisters();
 
-            //write memory bytes to emulator after user edititng	
+            //write memory bytes to emulator after user edititng    
             setEmuMemory();
 
             //init heap if we need to
@@ -393,13 +398,13 @@ public class GhidraEmuProvider extends ComponentProvider {
         if (emuHelper == null) {
 
             if (InitEmulation()) {
-	            for (Address bp: breaks) {
-	                emuHelper.setBreakpoint(bp);
-	            }
-	            if (!StopTF.getText().equals("")) {
-	                emuHelper.setBreakpoint(StopEmu);
-	            }
-	            Run();
+                for (Address bp: breaks) {
+                    emuHelper.setBreakpoint(bp);
+                }
+                if (!StopTF.getText().equals("")) {
+                    emuHelper.setBreakpoint(StopEmu);
+                }
+                Run();
             }
         } else {
             if (!StopTF.getText().equals("")) {
@@ -419,9 +424,9 @@ public class GhidraEmuProvider extends ComponentProvider {
     public void StepEmulation() {
 
         if (emuHelper == null) {
-        	if (InitEmulation()) {
-        		makeStep();
-        	 }
+            if (InitEmulation()) {
+                makeStep();
+             }
         } else {
             setEmuStackBytes();
             setEmuRegisters();
@@ -481,14 +486,14 @@ public class GhidraEmuProvider extends ComponentProvider {
 
     public static void setEmuMemory() {
       
-    	try {
-	        for (var line: GhidraEmuPopup.ToPatch) {
-	            emuHelper.writeMemory(line.start, line.bytes);
-	        }
-	        emuHelper.enableMemoryWriteTracking(true);
-	 }
-    	catch (Exception ex) {
-    	}
+        try {
+            for (var line: GhidraEmuPopup.ToPatch) {
+                emuHelper.writeMemory(line.start, line.bytes);
+            }
+            emuHelper.enableMemoryWriteTracking(true);
+     }
+        catch (Exception ex) {
+        }
     }
 
     public void makeStep() {
@@ -511,9 +516,11 @@ public class GhidraEmuProvider extends ComponentProvider {
 
         Address executionAddress = emuHelper.getExecutionAddress();
 
+        writeBackMemory();
+
         if (!success) {
-        	String lastError = emuHelper.getLastError();
-        	readStackfromEmu();
+            String lastError = emuHelper.getLastError();
+            readStackfromEmu();
             readEmuRegisters();
             GhidraEmuPopup.ToPatch.clear();
             JOptionPane.showMessageDialog(null, lastError);
@@ -540,6 +547,47 @@ public class GhidraEmuProvider extends ComponentProvider {
         processBreakpoint(executionAddress);
     }
 
+    private int bcount = 0;
+
+    private void writeBackMemory() {
+        AddressSetView memWrites = emuHelper.getTrackedMemoryWriteSet();
+        AddressIterator aIter = memWrites.getAddresses(true);
+        Memory mem = program.getMemory();
+        ProgramTransaction pt = ProgramTransaction.open(program, "set byte");
+        while (aIter.hasNext()) {
+            Address a = aIter.next();
+            MemoryBlock mb = program.getMemory().getBlock(a);
+            if (mb == null) {
+                //Can't write to memory that is not part of the program's map
+                //Could try to automatically map it but we have no idea
+                //how large the block is given only this one address
+                //We could be smarter about it by pre-scanning the change set
+                //and mapping in any missing blocks, but that is left as
+                //an exercise for the reader :)
+                continue;
+            }
+            if (!mb.isInitialized()) {    
+                // initialize memory because we can only write to an initialized
+                // memory block
+                try {
+                    mem.convertToInitialized(mb, (byte)0x00);
+                } catch (Exception e) {
+                    plugin.console.println(e.toString());
+                }
+            }
+            try {
+                //plugin.console.println(String.format("0x%x has changed from 0x%x to 0x%x", a.getOffset(), mem.getByte(a), emuHelper.readMemoryByte(a)));
+                program.getListing().clearCodeUnits(a, a, false); //Make sure there is no CodeUnit at a
+                //plugin.console.println(String.format("0x%x tried to setByte", a.getOffset()));
+                mem.setByte(a, emuHelper.readMemoryByte(a));
+            } catch (Exception e) {
+                plugin.console.println(e.toString());
+            }
+        }
+        pt.commit();
+        pt.close();
+    }
+
     public void Run() {
 
         Instruction currentInstruction = program.getListing().getInstructionAt(emuHelper.getExecutionAddress());
@@ -560,17 +608,18 @@ public class GhidraEmuProvider extends ComponentProvider {
 
         Address executionAddress = emuHelper.getExecutionAddress();
 
+        writeBackMemory();
 
         if (executionAddress.getOffset() == 0) {
-        	GhidraEmuPopup.ToPatch.clear();
-        	readStackfromEmu();
-            	readEmuRegisters();
-           	 ProgramLocation location = new ProgramLocation(program, traced.get(traced.size()-1));
-            	lpanel.scrollTo(location);
-            	emuHelper.dispose();
-            	emuHelper = null;
-            	JOptionPane.showMessageDialog(null, "Emulation finished!");
-            	return;
+            GhidraEmuPopup.ToPatch.clear();
+            readStackfromEmu();
+            readEmuRegisters();
+               ProgramLocation location = new ProgramLocation(program, traced.get(traced.size()-1));
+            lpanel.scrollTo(location);
+            emuHelper.dispose();
+            emuHelper = null;
+            JOptionPane.showMessageDialog(null, "Emulation finished!");
+            return;
         }
         
         if (!success) {
@@ -598,10 +647,10 @@ public class GhidraEmuProvider extends ComponentProvider {
             return;
         }
         if (processBreakpoint(executionAddress)) {
-        	Run();
+            Run();
         }
         else {
-        	GhidraEmuPopup.SetColor(executionAddress, Color.orange);
+            GhidraEmuPopup.SetColor(executionAddress, Color.orange);
         }
     }
 
@@ -616,7 +665,7 @@ public class GhidraEmuProvider extends ComponentProvider {
 
         for (externalFunction func: ImplementedFuncsPtrs) {
             if (addr.equals(func.FuncPtr)) {
-            	EmulateKnownFunc(func);
+                EmulateKnownFunc(func);
                 IPback();
                 return true;
             }
@@ -624,7 +673,7 @@ public class GhidraEmuProvider extends ComponentProvider {
 
         for (externalFunction func: unImplementedFuncsPtrs) {
             if (addr.equals(func.FuncPtr)) {
-            	plugin.console.addMessage(originator, "Unimplemented function " + func.function.getName() + "!");
+                plugin.console.addMessage(originator, "Unimplemented function " + func.function.getName() + "!");
                 IPback();
                 return true;
             }
@@ -632,25 +681,25 @@ public class GhidraEmuProvider extends ComponentProvider {
         
         for (externalFunction func: ComputedCalls) {
             if (addr.equals(func.FuncPtr)) {
-            	GhidraEmuPopup.SetColor(addr, Color.getHSBColor(247, 224, 98));
-            	for (externalFunction unImplfunc: unImplementedFuncsPtrs) {
-            		if (unImplfunc.function.equals(func.function)) {
-            			plugin.console.addMessage(originator, "Call intercepted — " + func.function.getName() + ".");
-                    	emuHelper.writeRegister(RegisterProvider.PC, program.getListing().getInstructionAt(emuHelper.getExecutionAddress()).getNext().getAddress().getOffset());
-                    	RegisterProvider.setRegister(RegisterProvider.PC, emuHelper.readRegister(RegisterProvider.PC));
-                    	return true;
-            		}
-            	}
-            	
-            	for (externalFunction Implfunc: ImplementedFuncsPtrs) {
-            		if (Implfunc.function.equals(func.function)) {
-            			EmulateKnownFunc(func);
-            			emuHelper.writeRegister(RegisterProvider.PC, program.getListing().getInstructionAt(emuHelper.getExecutionAddress()).getNext().getAddress().getOffset());
-                    	RegisterProvider.setRegister(RegisterProvider.PC, emuHelper.readRegister(RegisterProvider.PC));
-                    	return true;
-            		}
-            	}
-            	
+                GhidraEmuPopup.SetColor(addr, Color.getHSBColor(247, 224, 98));
+                for (externalFunction unImplfunc: unImplementedFuncsPtrs) {
+                    if (unImplfunc.function.equals(func.function)) {
+                        plugin.console.addMessage(originator, "Call intercepted — " + func.function.getName() + ".");
+                        emuHelper.writeRegister(RegisterProvider.PC, program.getListing().getInstructionAt(emuHelper.getExecutionAddress()).getNext().getAddress().getOffset());
+                        RegisterProvider.setRegister(RegisterProvider.PC, emuHelper.readRegister(RegisterProvider.PC));
+                        return true;
+                    }
+                }
+                
+                for (externalFunction Implfunc: ImplementedFuncsPtrs) {
+                    if (Implfunc.function.equals(func.function)) {
+                        EmulateKnownFunc(func);
+                        emuHelper.writeRegister(RegisterProvider.PC, program.getListing().getInstructionAt(emuHelper.getExecutionAddress()).getNext().getAddress().getOffset());
+                        RegisterProvider.setRegister(RegisterProvider.PC, emuHelper.readRegister(RegisterProvider.PC));
+                        return true;
+                    }
+                }
+                
             }
         }
 
@@ -660,7 +709,7 @@ public class GhidraEmuProvider extends ComponentProvider {
                 return false;
             }
         }
-		return false;
+        return false;
     }
 
     public void Reset() {
@@ -722,7 +771,7 @@ public class GhidraEmuProvider extends ComponentProvider {
 
     
     public void getExternalAddresses() {
-    	ImplementedFuncsPtrs = new ArrayList < externalFunction > ();
+        ImplementedFuncsPtrs = new ArrayList < externalFunction > ();
         unImplementedFuncsPtrs = new ArrayList < externalFunction > ();
         ComputedCalls = new ArrayList < externalFunction >();
         for (Symbol externalSymbol: program.getSymbolTable().getExternalSymbols()) {
@@ -730,30 +779,30 @@ public class GhidraEmuProvider extends ComponentProvider {
                 Function f = (Function) externalSymbol.getObject();
                 Address[] thunkAddrs = f.getFunctionThunkAddresses();
                 if (thunkAddrs == null) {
-                	//If symbol is not a thunk function it will be null, precedent was noticed in windows binaries
-                	Reference[] references = externalSymbol.getReferences();
-                	for (Reference ref : references) {
-                		RefType refType = ref.getReferenceType();
-                		Address ptrToFunc = ref.getFromAddress();
-            			if (refType == RefType.DATA) { 
-                			if (knownFuncs.contains(f.getName())) {
-                    			ImplementedFuncsPtrs.add(new externalFunction(ptrToFunc, f));
-                    		} else {
-                    			unImplementedFuncsPtrs.add(new externalFunction(ptrToFunc, f));
-                    		}
-            			} else if (refType == RefType.COMPUTED_CALL) {  
-                			ComputedCalls.add(new externalFunction(ptrToFunc, f));
-                		}
-                	}
+                    //If symbol is not a thunk function it will be null, precedent was noticed in windows binaries
+                    Reference[] references = externalSymbol.getReferences();
+                    for (Reference ref : references) {
+                        RefType refType = ref.getReferenceType();
+                        Address ptrToFunc = ref.getFromAddress();
+                        if (refType == RefType.DATA) { 
+                            if (knownFuncs.contains(f.getName())) {
+                                ImplementedFuncsPtrs.add(new externalFunction(ptrToFunc, f));
+                            } else {
+                                unImplementedFuncsPtrs.add(new externalFunction(ptrToFunc, f));
+                            }
+                        } else if (refType == RefType.COMPUTED_CALL) {  
+                            ComputedCalls.add(new externalFunction(ptrToFunc, f));
+                        }
+                    }
                 }
                 else {
-                	if (thunkAddrs.length == 1) {
-                		if (knownFuncs.contains(f.getName())) {
-                			ImplementedFuncsPtrs.add(new externalFunction(thunkAddrs[0], f));
-                		} else {
-                			unImplementedFuncsPtrs.add(new externalFunction(thunkAddrs[0], f));
-                		}
-                	}
+                    if (thunkAddrs.length == 1) {
+                        if (knownFuncs.contains(f.getName())) {
+                            ImplementedFuncsPtrs.add(new externalFunction(thunkAddrs[0], f));
+                        } else {
+                            unImplementedFuncsPtrs.add(new externalFunction(thunkAddrs[0], f));
+                        }
+                    }
                 }
             }
         }
@@ -856,7 +905,7 @@ public class GhidraEmuProvider extends ComponentProvider {
 
     
     public void EmulateKnownFunc(externalFunction func) {
-    	if (func.function.getName().contains("malloc")) {
+        if (func.function.getName().contains("malloc")) {
             int size = emuHelper.readRegister(RegisterProvider.ConventionRegs.get(0)).intValue();
             Address memAddr = null;
             try {
@@ -874,7 +923,7 @@ public class GhidraEmuProvider extends ComponentProvider {
         }
 
         else if (func.function.getName().contains("free")) {
-        	
+            
             Address freeAddr = program.getAddressFactory().getAddress(emuHelper.readRegister(RegisterProvider.ConventionRegs.get(0)).toString(16));
             mallocMgr.free(freeAddr);
         }
@@ -887,18 +936,18 @@ public class GhidraEmuProvider extends ComponentProvider {
         }
         
         else if (func.function.getName().contains("strlen")) {
-			Address ptr = program.getAddressFactory().getAddress(emuHelper.readRegister(RegisterProvider.ConventionRegs.get(0)).toString(16));
-			int len = 0;
-			while (emuHelper.readMemoryByte(ptr) != 0) {
-				++len;
-				ptr = ptr.next();
-			}
-			
-			FunctionEditorModel model = new FunctionEditorModel(null, func.function);
-           		Register returnReg = model.getReturnStorage().getRegister();
-			emuHelper.writeRegister(returnReg, len);
-           		RegisterProvider.setRegister(returnReg.getName(), BigInteger.valueOf(len));
-	}
+            Address ptr = program.getAddressFactory().getAddress(emuHelper.readRegister(RegisterProvider.ConventionRegs.get(0)).toString(16));
+            int len = 0;
+            while (emuHelper.readMemoryByte(ptr) != 0) {
+                ++len;
+                ptr = ptr.next();
+            }
+            
+            FunctionEditorModel model = new FunctionEditorModel(null, func.function);
+                   Register returnReg = model.getReturnStorage().getRegister();
+            emuHelper.writeRegister(returnReg, len);
+                   RegisterProvider.setRegister(returnReg.getName(), BigInteger.valueOf(len));
+    }
     }
 
 }
