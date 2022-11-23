@@ -14,6 +14,7 @@ Plugin allows you to easily dealing with native pcode emulator. No scripts anymo
   * Applying patched bytes from Ghidra
   * Breakpoints to control emualtion process
   * Hook some libc functions (but it is still poor)
+  * Optionally copy changed byte content back into Ghidra (Useful for self-modifying code)
 
  ## What it can't
   * Step in external library functions (emuHelper restrictions)
@@ -34,7 +35,7 @@ Contains all plugin's windows - Stack view, Registers, Breakpoints view and main
   ![GhidraEmu menu](./images/menu.png)
   
 ### Popup window
-Contains hotkeys for setting start and end addresses of emulation, breakpoints and applying changed bytes to emulator.
+Contains hotkeys for setting start and end addresses of emulation, breakpoints, applying changed bytes to emulator, and enabling write back of changed bytes to Ghidra.
 
   ![GhidraEmu popup](./images/popup_menu.png)
  
@@ -56,6 +57,11 @@ When you open your program in Сode browser GhidraEmu will mmap stack space auto
 If you changed something, let emulator know about changed bytes.
  
  ![GhidraEmu apply patched bytes](./images/ApplyPatchedBytes.png) 
+ 
+#### Write back changes
+If you believe that the code you are emulating will make changes to memory that you would to capture permanently in Ghida, then you should enable "Write changed bytes back to Ghidra" BEFORE you begin your emulation. When enabled, each time the emulation is paused, GhidraEmu will update your Ghidra program with any changed byte values generated during the emulation.
+ 
+ ![GhidraEmu write back changes](./images/writeback.png) 
  
 #### Console
 Here plugin prints output information.

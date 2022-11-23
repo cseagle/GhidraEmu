@@ -52,6 +52,7 @@ public class GhidraEmuPlugin extends ProgramPlugin {
     public static GhidraEmuPopup popup; 
     public CodeViewerService codeViewer;
     public ConsoleService console;
+    public boolean doWriteBack = false;
     
     public GhidraEmuPlugin(PluginTool tool) {
         super(tool);
@@ -90,7 +91,15 @@ public class GhidraEmuPlugin extends ProgramPlugin {
         }
     
     private void createActions() {        
-            popup = new GhidraEmuPopup(this, program);
+        popup = new GhidraEmuPopup(this, program);
+    }
+
+    public void enableWriteBack() {
+        doWriteBack = true;
+    }
+    
+    public void disableWriteBack() {
+        doWriteBack = false;
     }
     
     @Override

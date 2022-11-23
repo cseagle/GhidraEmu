@@ -316,9 +316,7 @@ public class GhidraEmuProvider extends ComponentProvider {
         }
     }
 
-
     public boolean InitEmulation() {
-
         if (StartTF.getText().equals("")) {
             JOptionPane.showMessageDialog(null, "Set start address!");
             return false;
@@ -387,7 +385,6 @@ public class GhidraEmuProvider extends ComponentProvider {
     }
 
     public void RunEmulation() {
-
         if (!StopTF.getText().equals("")) {
             if (StopTF.getText().matches("0x[0-9A-Fa-f]+") == false) {
                 return;
@@ -396,7 +393,6 @@ public class GhidraEmuProvider extends ComponentProvider {
             StopEmu = program.getAddressFactory().getAddress(StopTF.getText());
         }
         if (emuHelper == null) {
-
             if (InitEmulation()) {
                 for (Address bp: breaks) {
                     emuHelper.setBreakpoint(bp);
@@ -422,7 +418,6 @@ public class GhidraEmuProvider extends ComponentProvider {
 
     
     public void StepEmulation() {
-
         if (emuHelper == null) {
             if (InitEmulation()) {
                 makeStep();
@@ -436,8 +431,8 @@ public class GhidraEmuProvider extends ComponentProvider {
     }
 
     public static void setEmuStackBytes() {
-
         byte[] dest = new byte[0x2008];
+        
         try {
             program.getMemory().getBytes(stackStart, dest);
         } catch (MemoryAccessException e) {
@@ -449,7 +444,6 @@ public class GhidraEmuProvider extends ComponentProvider {
     }
 
     public static void readStackfromEmu() {
-
         try {
 
             int TransactionID = program.startTransaction("UpdateStack");
@@ -464,8 +458,8 @@ public class GhidraEmuProvider extends ComponentProvider {
 
 
     public static void setEmuRegisters() {
-
         int counter = 0;
+        
         for (String reg: RegisterProvider.RegList) {
             try {
                 emuHelper.writeRegister(reg, RegisterProvider.RegsVals.get(counter).value);
@@ -485,19 +479,16 @@ public class GhidraEmuProvider extends ComponentProvider {
     }
 
     public static void setEmuMemory() {
-      
         try {
             for (var line: GhidraEmuPopup.ToPatch) {
                 emuHelper.writeMemory(line.start, line.bytes);
             }
             emuHelper.enableMemoryWriteTracking(true);
-     }
-        catch (Exception ex) {
+        } catch (Exception ex) {
         }
     }
 
     public void makeStep() {
-
         Instruction currentInstruction = program.getListing().getInstructionAt(emuHelper.getExecutionAddress());
         if (currentInstruction == null) {
             JOptionPane.showMessageDialog(null, "Bad Instruction!");
@@ -550,6 +541,9 @@ public class GhidraEmuProvider extends ComponentProvider {
     private int bcount = 0;
 
     private void writeBackMemory() {
+        if (!plugin.doWriteBack) {
+            return;
+        }
         AddressSetView memWrites = emuHelper.getTrackedMemoryWriteSet();
         AddressIterator aIter = memWrites.getAddresses(true);
         Memory mem = program.getMemory();
@@ -589,8 +583,8 @@ public class GhidraEmuProvider extends ComponentProvider {
     }
 
     public void Run() {
-
         Instruction currentInstruction = program.getListing().getInstructionAt(emuHelper.getExecutionAddress());
+
         if (currentInstruction == null) {
             JOptionPane.showMessageDialog(null, "Bad Instruction!");
             Reset();
@@ -655,7 +649,6 @@ public class GhidraEmuProvider extends ComponentProvider {
     }
 
     public boolean processBreakpoint(Address addr) {
-
         if (addr.equals(StopEmu)) {
             emuHelper.dispose();
             emuHelper = null;
@@ -810,7 +803,6 @@ public class GhidraEmuProvider extends ComponentProvider {
    
 
     public boolean checkForMalloc() {
-
         Symbol externalSymbol = program.getSymbolTable().getExternalSymbol("malloc");
         if (externalSymbol == null) {
             return false;
@@ -820,7 +812,6 @@ public class GhidraEmuProvider extends ComponentProvider {
 
     public void IPback() {
         try {
-
             if (program.getLanguage().getProcessor().toString().equals("AARCH64")) {
                 emuHelper.writeRegister(RegisterProvider.PC, emuHelper.readRegister("x30"));
             } else if (program.getLanguage().getProcessor().toString().toLowerCase().contains("mips")) {
@@ -846,7 +837,6 @@ public class GhidraEmuProvider extends ComponentProvider {
     public void mallocHandler() {
         //If there's malloc func -> gonna get a heap
         if (checkForMalloc()) {
-
             Address heapAddr = getAddressfromInt(0x70000000);
             //Check if Heap was Initialized
             for (MemoryBlock block: program.getMemory().getBlocks()) {
@@ -886,23 +876,19 @@ public class GhidraEmuProvider extends ComponentProvider {
         public Address FuncPtr;
         public Function function;
 
-        externalFunction(Address FuncPtr, Function
-            function) {
+        externalFunction(Address FuncPtr, Function function) {
             this.FuncPtr = FuncPtr;
             this.function = function;
         }
     }
-
     
     private Address getAddressfromInt(int offset) {
         return program.getAddressFactory().getAddress(Integer.toHexString(offset));
     }
-
     
     private Address getAddressfromLong(long offset) {
         return program.getAddressFactory().getDefaultAddressSpace().getAddress(offset);
     }
-
     
     public void EmulateKnownFunc(externalFunction func) {
         if (func.function.getName().contains("malloc")) {
@@ -947,7 +933,7 @@ public class GhidraEmuProvider extends ComponentProvider {
                    Register returnReg = model.getReturnStorage().getRegister();
             emuHelper.writeRegister(returnReg, len);
                    RegisterProvider.setRegister(returnReg.getName(), BigInteger.valueOf(len));
-    }
+        }
     }
 
 }

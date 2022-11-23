@@ -10,6 +10,8 @@ import docking.action.KeyBindingData;
 import docking.action.MenuData;
 import ghidra.app.context.ListingActionContext;
 import ghidra.app.context.ListingContextAction;
+import docking.ActionContext;
+import docking.action.ToggleDockingAction;
 import ghidra.app.plugin.core.colorizer.ColorizingService;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.model.address.Address;
@@ -21,6 +23,7 @@ public class GhidraEmuPopup extends ListingContextAction {
     public final String MenuName = "GhidraEmu";
     public final String Group_Name = "GhidraEmu";
     public static PluginTool tool;
+    public GhidraEmuPlugin plugin;
     public static Program program;
     public static Address start_address = null;
     public static Address stop_address = null;
@@ -29,6 +32,7 @@ public class GhidraEmuPopup extends ListingContextAction {
     public GhidraEmuPopup(GhidraEmuPlugin plugin, Program program) {
         super("GhidraEmuPlugin", plugin.getName());
         setProgram(program);
+        this.plugin = plugin;
         tool = plugin.getTool();
         setupActions();
     }
@@ -90,6 +94,23 @@ public class GhidraEmuPopup extends ListingContextAction {
             "Stop emulation here"
         }, null, Group_Name));
         tool.addAction(EmuStop);
+
+        ToggleDockingAction writeBack = new ToggleDockingAction("Write changed bytes back to Ghidra", getName()) {
+            @Override
+            public void actionPerformed(ActionContext context) {
+                if (isSelected()) {
+                    plugin.enableWriteBack();
+                } else {
+                    plugin.disableWriteBack();
+                }
+            }
+        };
+        writeBack.setKeyBindingData(new KeyBindingData(KeyEvent.VK_W, 0));
+        writeBack.setPopupMenuData(new MenuData(new String[] {
+            MenuName,
+            "Write changed bytes back to Ghidra"
+        }, null, Group_Name));
+        tool.addAction(writeBack);
 
         ListingContextAction ApplyPatchedBytes = new ListingContextAction("Apply Patched Bytes", getName()) {
 
