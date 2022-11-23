@@ -59,7 +59,11 @@ If you changed something, let emulator know about changed bytes.
  ![GhidraEmu apply patched bytes](./images/ApplyPatchedBytes.png) 
  
 #### Write back changes
-If you believe that the code you are emulating will make changes to memory that you would to capture permanently in Ghida, then you should enable "Write changed bytes back to Ghidra" BEFORE you begin your emulation. When enabled, each time the emulation is paused, GhidraEmu will update your Ghidra program with any changed byte values generated during the emulation.
+If you believe that the code you are emulating will make changes to memory that
+you would like to capture permanently in Ghida, then you should enable "Write changed
+bytes back to Ghidra" BEFORE you begin your emulation. When enabled, each time
+the emulation is paused, GhidraEmu will update your Ghidra program with any
+changed byte values generated during the emulation.
  
  ![GhidraEmu write back changes](./images/writeback.png) 
  
